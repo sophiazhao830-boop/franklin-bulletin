@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Franklin Academy Front Desk Dashboard — Version 5 -->
+<!-- Franklin Academy Front Desk Dashboard — Version 9 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -162,20 +162,107 @@
 
     .calendar-wrap {
       height: calc(100% - 52px);
-      padding: .7vh .6vw;
+      padding: .8vh .65vw;
       background: white;
     }
 
-    .calendar-frame {
-      width: 100%;
+    .calendar-shell {
       height: 100%;
-      border: 0;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: .75vh;
+      min-height: 0;
+    }
+
+    .calendar-month-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      padding: 0 .2vw;
+    }
+
+    .calendar-month-name {
+      color: var(--navy);
+      font-size: clamp(20px, 1.55vw, 30px);
+      font-weight: 700;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 1px;
+      min-height: 0;
+      overflow: hidden;
+      background: var(--line);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+
+    .calendar-weekday {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--navy);
+      color: white;
+      font-size: clamp(11px, .74vw, 14px);
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .calendar-day {
+      position: relative;
+      min-width: 0;
+      overflow: hidden;
+      padding: .45vh .4vw;
       background: white;
+    }
+
+    .calendar-day.outside {
+      background: #f7f9fb;
+      color: #9aa5b3;
+    }
+
+    .calendar-day.today {
+      box-shadow: inset 0 0 0 3px var(--red);
+    }
+
+    .calendar-day-number {
+      margin-bottom: .35vh;
+      color: var(--navy);
+      font-size: clamp(12px, .86vw, 16px);
+      font-weight: 700;
+    }
+
+    .calendar-day.outside .calendar-day-number {
+      color: #9aa5b3;
+    }
+
+    .calendar-event {
+      margin-top: .28vh;
+      overflow: hidden;
+      padding: .34vh .35vw;
+      border-left: 4px solid var(--red);
+      border-radius: 4px;
+      background: var(--red-soft);
+      color: #5f1d26;
+      font-size: clamp(10px, .7vw, 13px);
+      font-weight: 700;
+      line-height: 1.18;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .calendar-event.closed {
+      border-left-color: var(--navy);
+      background: #edf3f8;
+      color: var(--navy-dark);
     }
 
     .side {
       display: grid;
-      grid-template-rows: 1.18fr .82fr;
+      grid-template-rows: 1.38fr .62fr;
       gap: 1.2vh;
       min-height: 0;
     }
@@ -189,7 +276,7 @@
 
     .key-dates {
       display: grid;
-      gap: .78vh;
+      gap: .55vh;
       align-content: start;
     }
 
@@ -201,7 +288,12 @@
       border-left: 5px solid var(--red);
       background: var(--red-soft);
       border-radius: 8px;
-      padding: .7vh .8vw;
+      padding: .5vh .7vw;
+    }
+
+    .key-date-item.closed {
+      border-left-color: var(--navy);
+      background: #edf3f8;
     }
 
     .date-chip {
@@ -213,7 +305,7 @@
     }
 
     .date-name {
-      font-size: clamp(14px, 1.02vw, 19px);
+      font-size: clamp(14px, .98vw, 18px);
       color: var(--text);
       font-weight: 700;
       line-height: 1.22;
@@ -221,7 +313,7 @@
 
     .date-note {
       margin-top: .12vh;
-      font-size: clamp(11px, .78vw, 14px);
+      font-size: clamp(11px, .74vw, 13px);
       color: var(--muted);
       line-height: 1.25;
     }
@@ -255,7 +347,7 @@
     footer {
       display: flex;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: space-between;
       padding: 0 1.8vw;
       background: white;
       border-top: 1px solid var(--line);
@@ -264,9 +356,15 @@
       font-weight: 700;
     }
 
+    .footer-source {
+      color: var(--muted);
+      font-size: clamp(10px, .72vw, 13px);
+      font-weight: 600;
+    }
+
     @media (max-aspect-ratio: 4/3) {
       body { min-width: 920px; }
-      main { grid-template-columns: 1.8fr 1fr; }
+      main { grid-template-columns: 2.15fr 1fr; }
       .brand img { height: 10.2vh; }
     }
   </style>
@@ -296,89 +394,25 @@
     <main>
       <section class="panel">
         <div class="panel-title">
-          <span>Franklin Calendar</span>
+          <span>Franklin Academy Calendar</span>
         </div>
         <div class="calendar-wrap">
-          <iframe
-            class="calendar-frame"
-            src="https://calendar.google.com/calendar/embed?height=600&wkst=1&bgcolor=%23ffffff&ctz=America%2FLos_Angeles&showPrint=0&showTitle=0&showTabs=0&showCalendars=0&showTz=0&mode=MONTH&src=c_48a4e65a9f9d49ce0687109f151e6593620d59d02c407a418ed8d653529c98f2@group.calendar.google.com"
-            title="Franklin Academy calendar"
-            scrolling="no">
-          </iframe>
+          <div class="calendar-shell">
+            <div class="calendar-month-bar">
+              <div class="calendar-month-name" id="calendar-month-name">September 2026</div>
+            </div>
+            <div class="calendar-grid" id="calendar-grid" aria-label="Franklin Academy events calendar"></div>
+          </div>
         </div>
       </section>
 
       <aside class="side">
         <section class="panel">
           <div class="panel-title">
-            <span>2026–2027 Key Dates</span>
+            <span>Next Events &amp; Holidays</span>
           </div>
           <div class="side-content">
-            <div class="key-dates">
-              <div class="key-date-item">
-                <div class="date-chip">Aug 24<br>2026</div>
-                <div>
-                  <div class="date-name">First Day of School</div>
-                  <div class="date-note">Start of the 2026–2027 school year</div>
-                </div>
-              </div>
-
-              <div class="key-date-item">
-                <div class="date-chip">Sep 7<br>2026</div>
-                <div>
-                  <div class="date-name">Labor Day • No School</div>
-                  <div class="date-note">School closed</div>
-                </div>
-              </div>
-
-              <div class="key-date-item">
-                <div class="date-chip">Sep 15<br>2026</div>
-                <div>
-                  <div class="date-name">K–12 Assembly</div>
-                  <div class="date-note">Monthly school community event</div>
-                </div>
-              </div>
-
-              <div class="key-date-item">
-                <div class="date-chip">Sep 17<br>2026</div>
-                <div>
-                  <div class="date-name">Back to School Night</div>
-                  <div class="date-note">Meet teachers and review classroom expectations</div>
-                </div>
-              </div>
-
-              <div class="key-date-item">
-                <div class="date-chip">Dec 21<br>to Jan 1</div>
-                <div>
-                  <div class="date-name">Winter Break 2026–2027</div>
-                  <div class="date-note">No school from Dec 21, 2026 through Jan 1, 2027</div>
-                </div>
-              </div>
-
-              <div class="key-date-item">
-                <div class="date-chip">Feb 19<br>2027</div>
-                <div>
-                  <div class="date-name">Talent Show</div>
-                  <div class="date-note">Student performances and school spirit</div>
-                </div>
-              </div>
-
-              <div class="key-date-item">
-                <div class="date-chip">Mar 26<br>2027</div>
-                <div>
-                  <div class="date-name">Egg Hunt</div>
-                  <div class="date-note">Spring community event</div>
-                </div>
-              </div>
-
-              <div class="key-date-item">
-                <div class="date-chip">Jun 11<br>2027</div>
-                <div>
-                  <div class="date-name">End of Year Performance Party</div>
-                  <div class="date-note">Year end celebration and student performances</div>
-                </div>
-              </div>
-            </div>
+            <div class="key-dates" id="upcoming-events"></div>
           </div>
         </section>
 
@@ -409,6 +443,196 @@
       "Need assistance? The front desk team is happy to help."
     ]
   };
+
+  // Public events verified from Franklin Academy's official .us event pages.
+  // The display rolls forward automatically through this list. Add or revise
+  // entries here when Franklin changes the schedule on its website.
+  const EVENTS = [
+    { start: "2026-09-07", title: "Labor Day • No School", short: "Labor Day", note: "School closed", closed: true },
+    { start: "2026-09-15", title: "K–12 Assembly", short: "K–12 Assembly", note: "Monthly school community event" },
+    { start: "2026-09-17", title: "Back to School Night", short: "Back to School Night", note: "Family and teacher event" },
+    { start: "2026-09-25", title: "Moon Festival Classroom Activity", short: "Moon Festival", note: "In-class cultural activities" },
+    { start: "2026-10-12", title: "Staff Development Day • No School", short: "Staff Development", note: "School closed for students", closed: true },
+    { start: "2026-10-15", title: "Great ShakeOut Earthquake Drill", short: "Great ShakeOut Drill", note: "Campus safety drill" },
+    { start: "2026-10-20", title: "K–12 Assembly", short: "K–12 Assembly", note: "Monthly school community event" },
+    { start: "2026-10-21", end: "2026-10-29", title: "Quarter 1 Assessments", short: "Q1 Assessments", note: "Assessment period" },
+    { start: "2026-10-30", title: "Costume Day", short: "Costume Day", note: "School-appropriate costumes" },
+    { start: "2026-11-02", title: "Día de los Muertos", short: "Día de los Muertos", note: "In-class cultural activities" },
+    { start: "2026-11-11", title: "Veterans Day • No School", short: "Veterans Day", note: "School closed", closed: true },
+    { start: "2026-11-13", title: "Grandparents Day Celebration", short: "Grandparents Day", note: "School community celebration" },
+    { start: "2026-11-17", title: "K–12 Assembly", short: "K–12 Assembly", note: "Monthly school community event" },
+    { start: "2026-11-24", title: "Thanksgiving Classroom Activity", short: "Thanksgiving Activity", note: "In-class activities" },
+    { start: "2026-11-25", end: "2026-11-27", title: "Thanksgiving Recess • No School", short: "Thanksgiving Recess", note: "School closed", closed: true },
+    { start: "2026-12-04", title: "Career Day", short: "Career Day", note: "Career exploration event" },
+    { start: "2026-12-15", title: "K–12 Assembly", short: "K–12 Assembly", note: "Monthly school community event" },
+    { start: "2026-12-18", title: "Winter Performance Party", short: "Winter Performance", note: "Student performances and celebration" },
+    { start: "2026-12-21", end: "2027-01-01", title: "Winter Break • No School", short: "Winter Break", note: "School closed", closed: true },
+    { start: "2027-01-04", title: "Staff Development Day • No School", short: "Staff Development", note: "School closed for students", closed: true },
+    { start: "2027-01-05", title: "School Resumes", short: "School Resumes", note: "Students return to campus" },
+    { start: "2027-01-18", title: "Martin Luther King Jr. Day • No School", short: "MLK Day", note: "School closed", closed: true },
+    { start: "2027-01-19", title: "K–12 Assembly", short: "K–12 Assembly", note: "Monthly school community event" },
+    { start: "2027-01-20", end: "2027-01-29", title: "Quarter 2 Assessments", short: "Q2 Assessments", note: "Assessment period" },
+    { start: "2027-01-22", title: "Got Talent Auditions", short: "Talent Auditions", note: "Student auditions" },
+    { start: "2027-02-05", title: "Chinese New Year Classroom Activity", short: "Chinese New Year", note: "In-class cultural activities" },
+    { start: "2027-02-08", end: "2027-02-12", title: "Kindness Week", short: "Kindness Week", note: "Schoolwide activities" },
+    { start: "2027-02-12", title: "Valentine’s Day Classroom Activity", short: "Valentine’s Activity", note: "In-class activities" },
+    { start: "2027-02-15", title: "Presidents’ Day • No School", short: "Presidents’ Day", note: "School closed", closed: true },
+    { start: "2027-02-16", title: "K–12 Assembly", short: "K–12 Assembly", note: "Monthly school community event" },
+    { start: "2027-02-19", title: "Talent Show", short: "Talent Show", note: "Student performances" },
+    { start: "2027-02-26", title: "Franklin Academy Open House", short: "Open House", note: "Prospective family event" },
+    { start: "2027-03-11", title: "Lockdown & Fire Drill", short: "Safety Drills", note: "Campus safety drills" },
+    { start: "2027-03-12", title: "K–12 Assembly", short: "K–12 Assembly", note: "Monthly school community event" },
+    { start: "2027-03-17", end: "2027-03-25", title: "Quarter 3 Assessments", short: "Q3 Assessments", note: "Assessment period" },
+    { start: "2027-03-26", title: "Egg Hunt", short: "Egg Hunt", note: "Spring community event" },
+    { start: "2027-03-29", end: "2027-04-09", title: "Spring Break • No School", short: "Spring Break", note: "School closed", closed: true },
+    { start: "2027-04-12", title: "Staff Development Day • No School", short: "Staff Development", note: "School closed for students", closed: true },
+    { start: "2027-04-13", title: "School Resumes", short: "School Resumes", note: "Students return to campus" },
+    { start: "2027-04-20", title: "K–12 Assembly", short: "K–12 Assembly", note: "Monthly school community event" },
+    { start: "2027-04-30", title: "Día de los Niños", short: "Día de los Niños", note: "In-class cultural activities" },
+    { start: "2027-05-03", end: "2027-05-07", title: "Teacher Appreciation Week", short: "Teacher Appreciation", note: "Schoolwide appreciation activities" },
+    { start: "2027-05-07", title: "Mother’s Day Celebration", short: "Mother’s Day", note: "School community celebration" },
+    { start: "2027-05-17", end: "2027-05-21", title: "Spirit Week", short: "Spirit Week", note: "Schoolwide themed activities" },
+    { start: "2027-05-18", title: "K–12 Assembly", short: "K–12 Assembly", note: "Monthly school community event" },
+    { start: "2027-05-27", title: "STEM Spectacular", short: "STEM Spectacular", note: "Student STEM showcase" },
+    { start: "2027-05-28", title: "Father’s Day Celebration", short: "Father’s Day", note: "School community celebration" },
+    { start: "2027-05-31", title: "Memorial Day • No School", short: "Memorial Day", note: "School closed", closed: true },
+    { start: "2027-06-04", title: "Book Return Day", short: "Book Return Day", note: "Return books and school materials" },
+    { start: "2027-06-09", title: "Elementary School Graduation", short: "Elementary Graduation", note: "Elementary graduation ceremony" },
+    { start: "2027-06-10", title: "Middle & High School Graduation", short: "MS & HS Graduation", note: "Middle and high school graduation" },
+    { start: "2027-06-11", title: "End of Year Performance Party", short: "End of Year Party", note: "Student performances and celebration" },
+    { start: "2027-06-14", end: "2027-08-21", title: "Summer Break • No School", short: "Summer Break", note: "Regular classes not in session", closed: true }
+  ].map(event => Object.assign({}, event, { end: event.end || event.start }));
+
+  const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const SHORT_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  function todayParts() {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: CONFIG.timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).formatToParts(new Date());
+    const result = {};
+    parts.forEach(part => { if (part.type !== "literal") result[part.type] = part.value; });
+    return { year: Number(result.year), month: Number(result.month), day: Number(result.day) };
+  }
+
+  function makeKey(year, month, day) {
+    return String(year).padStart(4, "0") + "-" + String(month).padStart(2, "0") + "-" + String(day).padStart(2, "0");
+  }
+
+  function keyParts(key) {
+    const values = key.split("-").map(Number);
+    return { year: values[0], month: values[1], day: values[2] };
+  }
+
+  function nextActiveMonth(today) {
+    const todayKey = makeKey(today.year, today.month, today.day);
+    const monthStart = makeKey(today.year, today.month, 1);
+    const monthEndDay = new Date(Date.UTC(today.year, today.month, 0)).getUTCDate();
+    const monthEnd = makeKey(today.year, today.month, monthEndDay);
+    const hasRemainingEvent = EVENTS.some(event => event.end >= todayKey && event.start <= monthEnd && event.end >= monthStart);
+    if (hasRemainingEvent) return { year: today.year, month: today.month };
+    const next = EVENTS.find(event => event.end >= todayKey);
+    if (!next) return { year: today.year, month: today.month };
+    const nextDate = keyParts(next.start);
+    return { year: nextDate.year, month: nextDate.month };
+  }
+
+  function formatDateChip(event) {
+    const start = keyParts(event.start);
+    const end = keyParts(event.end);
+    if (event.start === event.end) return [SHORT_MONTHS[start.month - 1] + " " + start.day, String(start.year)];
+    if (start.year === end.year) return [SHORT_MONTHS[start.month - 1] + " " + start.day, "to " + SHORT_MONTHS[end.month - 1] + " " + end.day];
+    return [SHORT_MONTHS[start.month - 1] + " " + start.day, "to " + SHORT_MONTHS[end.month - 1] + " " + end.day];
+  }
+
+  function renderUpcomingEvents(todayKey) {
+    const container = document.getElementById("upcoming-events");
+    while (container.firstChild) container.removeChild(container.firstChild);
+    const upcoming = EVENTS.filter(event => event.end >= todayKey).slice(0, 8);
+
+    upcoming.forEach(event => {
+      const item = document.createElement("div");
+      item.className = "key-date-item" + (event.closed ? " closed" : "");
+
+      const chip = document.createElement("div");
+      chip.className = "date-chip";
+      const lines = formatDateChip(event);
+      chip.appendChild(document.createTextNode(lines[0]));
+      chip.appendChild(document.createElement("br"));
+      chip.appendChild(document.createTextNode(lines[1]));
+
+      const details = document.createElement("div");
+      const name = document.createElement("div");
+      name.className = "date-name";
+      name.textContent = event.title;
+      const note = document.createElement("div");
+      note.className = "date-note";
+      note.textContent = event.note;
+      details.appendChild(name);
+      details.appendChild(note);
+      item.appendChild(chip);
+      item.appendChild(details);
+      container.appendChild(item);
+    });
+  }
+
+  function renderCalendar(year, month, todayKey) {
+    document.getElementById("calendar-month-name").textContent = MONTHS[month - 1] + " " + year;
+    const grid = document.getElementById("calendar-grid");
+    while (grid.firstChild) grid.removeChild(grid.firstChild);
+
+    WEEKDAYS.forEach(day => {
+      const label = document.createElement("div");
+      label.className = "calendar-weekday";
+      label.textContent = day;
+      grid.appendChild(label);
+    });
+
+    const firstWeekday = new Date(Date.UTC(year, month - 1, 1)).getUTCDay();
+    const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+    const weekCount = Math.ceil((firstWeekday + daysInMonth) / 7);
+    grid.style.gridTemplateRows = "34px repeat(" + weekCount + ", minmax(0, 1fr))";
+
+    for (let index = 0; index < weekCount * 7; index += 1) {
+      const date = new Date(Date.UTC(year, month - 1, index - firstWeekday + 1));
+      const cellYear = date.getUTCFullYear();
+      const cellMonth = date.getUTCMonth() + 1;
+      const cellDay = date.getUTCDate();
+      const cellKey = makeKey(cellYear, cellMonth, cellDay);
+      const isCurrentMonth = cellMonth === month;
+      const cell = document.createElement("div");
+      cell.className = "calendar-day" + (isCurrentMonth ? "" : " outside") + (cellKey === todayKey ? " today" : "");
+
+      const number = document.createElement("div");
+      number.className = "calendar-day-number";
+      number.textContent = isCurrentMonth ? cellDay : "";
+      cell.appendChild(number);
+
+      EVENTS.filter(event => isCurrentMonth && event.start <= cellKey && event.end >= cellKey).slice(0, 2).forEach(event => {
+        const badge = document.createElement("div");
+        badge.className = "calendar-event" + (event.closed ? " closed" : "");
+        badge.textContent = event.short;
+        badge.title = event.title;
+        cell.appendChild(badge);
+      });
+      grid.appendChild(cell);
+    }
+  }
+
+  function renderEventViews() {
+    const today = todayParts();
+    const todayKey = makeKey(today.year, today.month, today.day);
+    const displayMonth = nextActiveMonth(today);
+    renderUpcomingEvents(todayKey);
+    renderCalendar(displayMonth.year, displayMonth.month, todayKey);
+  }
+
+  renderEventViews();
+  setInterval(renderEventViews, 15 * 60 * 1000);
 
   function updateDateTime() {
     const now = new Date();
