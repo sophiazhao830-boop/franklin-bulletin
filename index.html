@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Franklin Academy Front Desk Dashboard — Version 9 -->
+<!-- Franklin Academy Front Desk Dashboard — Version 16 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -106,11 +106,11 @@
 
     .weather {
       margin-left: auto;
-      display: grid;
-      grid-template-columns: auto auto;
+      display: flex;
       align-items: center;
-      gap: .8vw;
-      min-width: 200px;
+      justify-content: flex-end;
+      gap: .3vw;
+      min-width: 0;
     }
 
     #weather-icon {
@@ -118,10 +118,18 @@
       line-height: 1;
     }
 
+    .weather-details {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      text-align: right;
+    }
+
     .weather-temp {
       font-size: clamp(28px, 2.6vw, 52px);
       font-weight: 700;
       line-height: .95;
+      white-space: nowrap;
     }
 
     .weather-label {
@@ -242,16 +250,18 @@
     .calendar-event {
       margin-top: .28vh;
       overflow: hidden;
-      padding: .34vh .35vw;
+      padding: .4vh .4vw;
       border-left: 4px solid var(--red);
       border-radius: 4px;
       background: var(--red-soft);
       color: #5f1d26;
-      font-size: clamp(10px, .7vw, 13px);
+      font-size: clamp(12px, .82vw, 16px);
       font-weight: 700;
-      line-height: 1.18;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      line-height: 1.2;
+      text-overflow: clip;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: normal;
     }
 
     .calendar-event.closed {
@@ -262,8 +272,7 @@
 
     .side {
       display: grid;
-      grid-template-rows: 1.38fr .62fr;
-      gap: 1.2vh;
+      grid-template-rows: minmax(0, 1fr);
       min-height: 0;
     }
 
@@ -276,19 +285,22 @@
 
     .key-dates {
       display: grid;
-      gap: .55vh;
-      align-content: start;
+      gap: .7vh;
+      height: 100%;
+      min-height: 0;
+      align-content: stretch;
     }
 
     .key-date-item {
       display: grid;
       grid-template-columns: 86px 1fr;
       gap: .8vw;
-      align-items: start;
+      align-items: center;
       border-left: 5px solid var(--red);
       background: var(--red-soft);
       border-radius: 8px;
-      padding: .5vh .7vw;
+      padding: .7vh .75vw;
+      min-height: 0;
     }
 
     .key-date-item.closed {
@@ -297,7 +309,7 @@
     }
 
     .date-chip {
-      font-size: clamp(12px, .86vw, 16px);
+      font-size: clamp(13px, .94vw, 18px);
       color: var(--navy);
       font-weight: 700;
       text-transform: uppercase;
@@ -305,7 +317,7 @@
     }
 
     .date-name {
-      font-size: clamp(14px, .98vw, 18px);
+      font-size: clamp(15px, 1.06vw, 20px);
       color: var(--text);
       font-weight: 700;
       line-height: 1.22;
@@ -313,35 +325,22 @@
 
     .date-note {
       margin-top: .12vh;
-      font-size: clamp(11px, .74vw, 13px);
+      font-size: clamp(12px, .8vw, 15px);
       color: var(--muted);
       line-height: 1.25;
     }
 
-    #announcement-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
+    .empty-events {
       display: grid;
-      gap: .95vh;
-    }
-
-    #announcement-list li {
-      display: grid;
-      grid-template-columns: 8px 1fr;
-      gap: .7vw;
-      align-items: start;
-      font-size: clamp(15px, 1vw, 20px);
-      line-height: 1.3;
-    }
-
-    #announcement-list li::before {
-      content: "";
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--red);
-      margin-top: .52em;
+      place-items: center;
+      height: 100%;
+      padding: 2vh 1vw;
+      border-radius: 8px;
+      background: var(--red-soft);
+      color: var(--navy);
+      font-size: clamp(16px, 1.08vw, 20px);
+      font-weight: 700;
+      text-align: center;
     }
 
     footer {
@@ -384,7 +383,7 @@
 
       <div class="weather">
         <div id="weather-icon">⛅</div>
-        <div>
+        <div class="weather-details">
           <div class="weather-temp"><span id="temperature">--</span>°F</div>
           <div class="weather-label"><span id="weather-description">Loading weather</span><br>Irvine, CA</div>
         </div>
@@ -415,15 +414,6 @@
             <div class="key-dates" id="upcoming-events"></div>
           </div>
         </section>
-
-        <section class="panel">
-          <div class="panel-title">
-            <span>Announcements</span>
-          </div>
-          <div class="side-content">
-            <ul id="announcement-list"></ul>
-          </div>
-        </section>
       </aside>
     </main>
 
@@ -436,12 +426,7 @@
   const CONFIG = {
     latitude: 33.6846,
     longitude: -117.8265,
-    timeZone: "America/Los_Angeles",
-    announcements: [
-      "Welcome to Franklin Academy. Please check in at the front desk upon arrival.",
-      "Please review the calendar for upcoming school events and closures.",
-      "Need assistance? The front desk team is happy to help."
-    ]
+    timeZone: "America/Los_Angeles"
   };
 
   // Public events verified from Franklin Academy's official .us event pages.
@@ -554,6 +539,17 @@
     while (container.firstChild) container.removeChild(container.firstChild);
     const upcoming = EVENTS.filter(event => event.end >= todayKey).slice(0, 8);
 
+    if (upcoming.length === 0) {
+      container.style.gridTemplateRows = "minmax(0, 1fr)";
+      const empty = document.createElement("div");
+      empty.className = "empty-events";
+      empty.textContent = "No upcoming events or holidays are currently listed.";
+      container.appendChild(empty);
+      return;
+    }
+
+    container.style.gridTemplateRows = "repeat(" + upcoming.length + ", minmax(0, 1fr))";
+
     upcoming.forEach(event => {
       const item = document.createElement("div");
       item.className = "key-date-item" + (event.closed ? " closed" : "");
@@ -634,8 +630,15 @@
   renderEventViews();
   setInterval(renderEventViews, 15 * 60 * 1000);
 
-  function updateDateTime() {
+  let clockTimer = null;
+  let lastClockMinute = "";
+
+  function updateDateTime(forceUpdate) {
     const now = new Date();
+    const minuteKey = String(Math.floor(now.getTime() / 60000));
+
+    if (!forceUpdate && minuteKey === lastClockMinute) return;
+    lastClockMinute = minuteKey;
 
     document.getElementById("weekday").textContent =
       new Intl.DateTimeFormat("en-US", {
@@ -659,14 +662,24 @@
       }).format(now);
   }
 
-  updateDateTime();
-  setInterval(updateDateTime, 30000);
+  function scheduleClockTick() {
+    updateDateTime(false);
+    const nextTickDelay = 1000 - (Date.now() % 1000) + 25;
+    clockTimer = window.setTimeout(scheduleClockTick, nextTickDelay);
+  }
 
-  const announcementList = document.getElementById("announcement-list");
-  CONFIG.announcements.slice(0, 5).forEach(text => {
-    const li = document.createElement("li");
-    li.textContent = text;
-    announcementList.appendChild(li);
+  function refreshAfterWake() {
+    if (clockTimer !== null) window.clearTimeout(clockTimer);
+    updateDateTime(true);
+    renderEventViews();
+    scheduleClockTick();
+  }
+
+  scheduleClockTick();
+  window.addEventListener("pageshow", refreshAfterWake);
+  window.addEventListener("focus", refreshAfterWake);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) refreshAfterWake();
   });
 
   const WEATHER = {
