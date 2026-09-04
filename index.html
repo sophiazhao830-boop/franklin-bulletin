@@ -644,8 +644,24 @@
     soundRetryTimer = window.setTimeout(tryAutomaticSignageSound, 750);
   }
 
+  function enableSoundFromUserGesture() {
+    if (soundRetryTimer !== null) {
+      window.clearTimeout(soundRetryTimer);
+      soundRetryTimer = null;
+    }
+    promoVideo.defaultMuted = false;
+    promoVideo.muted = false;
+    promoVideo.volume = 1;
+    const playRequest = promoVideo.play();
+    if (playRequest && typeof playRequest.catch === "function") {
+      playRequest.catch(keepPromoVideoPlaying);
+    }
+  }
+
   promoVideo.addEventListener("canplay", keepPromoVideoPlaying, { once: true });
   promoVideo.addEventListener("playing", scheduleAutomaticSignageSound);
+  window.addEventListener("pointerdown", enableSoundFromUserGesture, { once: true, capture: true });
+  window.addEventListener("keydown", enableSoundFromUserGesture, { once: true, capture: true });
   promoVideo.addEventListener("ended", () => {
     promoVideo.currentTime = 0;
     keepPromoVideoPlaying();

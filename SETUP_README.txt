@@ -92,8 +92,10 @@ Logo:
 To preview on this Mac:
 1. Double-click start_dashboard.command.
 2. Keep the Terminal window open while the dashboard is running.
-3. The dashboard opens at http://127.0.0.1:8765/.
+3. The dashboard opens in a dedicated Chrome signage window at http://127.0.0.1:8765/. This launcher permits automatic sound without clicking.
 4. Press Control-C in the Terminal window when finished.
+
+Opening index.html directly in an ordinary browser does not permit automatic sound. If you do that, the first click or key press on the page enables sound; use start_dashboard.command for no-click sound on this Mac.
 
 The dashboard now requests full-volume sound on every display. Browsers can still block automatic sound. For unattended TV playback, turn off Mute for this display in Screen Keep and make sure the TV volume is on.
 
