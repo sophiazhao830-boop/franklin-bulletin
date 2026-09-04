@@ -95,7 +95,17 @@ To preview on this Mac:
 3. The dashboard opens in a dedicated Chrome signage window at http://127.0.0.1:8765/. This launcher permits automatic sound without clicking.
 4. Press Control-C in the Terminal window when finished.
 
-Opening index.html directly in an ordinary browser does not permit automatic sound. If you do that, the first click or key press on the page enables sound; use start_dashboard.command for no-click sound on this Mac.
+Opening index.html directly in an ordinary Chrome window does not permit automatic sound unless Chrome already trusts the site for audible autoplay. Use start_dashboard.command for no-click sound on this Mac. Safari may permit audible autoplay depending on its per-site setting.
+
+To allow no-click sound from the published GitHub Pages site in Chrome on this Mac:
+1. Double-click Franklin_Bulletin_Chrome_Autoplay.mobileconfig.
+2. Open System Settings > General > Device Management (or Profiles).
+3. Select Franklin Bulletin Chrome Autoplay and install it. Administrator approval may be required.
+4. Completely quit and reopen Chrome.
+5. Open chrome://policy, click Reload policies, and confirm that AutoplayAllowlist contains https://sophiazhao830-boop.github.io/franklin-bulletin/*.
+6. Open https://sophiazhao830-boop.github.io/franklin-bulletin/ in a new tab.
+
+The profile is limited to the Franklin Bulletin URL and can be removed later from Device Management/Profiles.
 
 The dashboard now requests full-volume sound on every display. Browsers can still block automatic sound. For unattended TV playback, turn off Mute for this display in Screen Keep and make sure the TV volume is on.
 

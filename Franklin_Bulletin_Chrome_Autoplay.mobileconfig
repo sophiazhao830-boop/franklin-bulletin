@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>PayloadContent</key>
+  <array>
+    <dict>
+      <key>AutoplayAllowlist</key>
+      <array>
+        <string>https://sophiazhao830-boop.github.io/franklin-bulletin/*</string>
+      </array>
+      <key>PayloadDescription</key>
+      <string>Allows the Franklin Academy bulletin website to autoplay video with sound in Google Chrome.</string>
+      <key>PayloadDisplayName</key>
+      <string>Franklin Bulletin Chrome Autoplay</string>
+      <key>PayloadIdentifier</key>
+      <string>org.franklinacademy.chrome.autoplay.settings</string>
+      <key>PayloadType</key>
+      <string>com.google.Chrome</string>
+      <key>PayloadUUID</key>
+      <string>28B8D5B9-6592-44CD-8632-E22428336B76</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+    </dict>
+  </array>
+  <key>PayloadDescription</key>
+  <string>Permits no-click audio autoplay in Chrome only for the Franklin Academy bulletin GitHub Pages website.</string>
+  <key>PayloadDisplayName</key>
+  <string>Franklin Bulletin Chrome Autoplay</string>
+  <key>PayloadIdentifier</key>
+  <string>org.franklinacademy.chrome.autoplay</string>
+  <key>PayloadOrganization</key>
+  <string>Franklin Academy</string>
+  <key>PayloadRemovalDisallowed</key>
+  <false/>
+  <key>PayloadType</key>
+  <string>Configuration</string>
+  <key>PayloadUUID</key>
+  <string>ACCFE832-3C3B-4A21-859E-07A5411ACD65</string>
+  <key>PayloadVersion</key>
+  <integer>1</integer>
+</dict>
+</plist>
