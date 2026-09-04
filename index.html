@@ -484,7 +484,6 @@
                 id="promo-video"
                 src="franklin_academy_promo_2026.mp4"
                 autoplay
-                muted
                 loop
                 playsinline
                 preload="auto"
@@ -594,10 +593,10 @@
 
   const promoVideo = document.getElementById("promo-video");
   const soundMode = new URLSearchParams(window.location.search).get("sound");
-  const isAndroidTvOrSignage =
-    /Android|SMART-TV|Tizen|HbbTV|Web0S|CrKey|AFT|\bTV\b/i.test(navigator.userAgent);
-  const requestAutomaticSound =
-    soundMode === "on" || (soundMode !== "off" && isAndroidTvOrSignage);
+  // Always request sound unless the URL explicitly contains ?sound=off.
+  // Screen Keep and some TV browsers do not identify themselves as Android
+  // or signage players, so user-agent detection can incorrectly leave them muted.
+  const requestAutomaticSound = soundMode !== "off";
   let videoRetryTimer = null;
   let soundRetryTimer = null;
 

@@ -95,7 +95,7 @@ To preview on this Mac:
 3. The dashboard opens at http://127.0.0.1:8765/.
 4. Press Control-C in the Terminal window when finished.
 
-Browsers can block automatic sound. For unattended TV playback, turn off Mute for this display in Screen Keep and make sure the TV volume is on.
+The dashboard now requests full-volume sound on every display. Browsers can still block automatic sound. For unattended TV playback, turn off Mute for this display in Screen Keep and make sure the TV volume is on.
 
 For GitHub Pages and the TV:
 1. Upload both index.html and franklin_academy_promo_2026.mp4 to the repository's top folder.
