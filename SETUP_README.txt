@@ -9,7 +9,9 @@ Files:
 Version 19 local-video update:
 - Replaces the YouTube player with FA宣传片2026.mp4.
 - Uses a clear, web-optimized H.264/AAC copy sized for the dashboard's video panel and Android TV compatibility.
-- Starts with sound at full volume and no on-screen click.
+- Keeps the deployable video near 17 MB so it remains below GitHub's 25 MB browser-upload limit.
+- Starts playing automatically with no on-screen click.
+- Requests full-volume sound automatically in Android TV and signage browsers; falls back to muted playback instead of freezing if the browser blocks audible autoplay.
 - Loops continuously with automatic replay and recovery after TV sleep or focus changes.
 - Uses the complete video panel without a heading or player controls.
 

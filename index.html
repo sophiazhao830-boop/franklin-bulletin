@@ -484,6 +484,7 @@
                 id="promo-video"
                 src="franklin_academy_promo_2026.mp4"
                 autoplay
+                muted
                 loop
                 playsinline
                 preload="auto"
@@ -592,10 +593,38 @@
   }
 
   const promoVideo = document.getElementById("promo-video");
+  const soundMode = new URLSearchParams(window.location.search).get("sound");
+  const isAndroidTvOrSignage =
+    /Android|SMART-TV|Tizen|HbbTV|Web0S|CrKey|AFT|\bTV\b/i.test(navigator.userAgent);
+  const requestAutomaticSound =
+    soundMode === "on" || (soundMode !== "off" && isAndroidTvOrSignage);
   let videoRetryTimer = null;
+  let soundRetryTimer = null;
 
   function keepPromoVideoPlaying() {
     if (videoRetryTimer !== null) window.clearTimeout(videoRetryTimer);
+
+    const playRequest = promoVideo.play();
+    if (playRequest && typeof playRequest.catch === "function") {
+      playRequest.catch(() => {
+        // Audible autoplay can be rejected by the browser. Restore muted
+        // playback immediately so the TV never remains on the first frame.
+        promoVideo.defaultMuted = true;
+        promoVideo.muted = true;
+        const fallbackRequest = promoVideo.play();
+        if (fallbackRequest && typeof fallbackRequest.catch === "function") {
+          fallbackRequest.catch(() => {
+            videoRetryTimer = window.setTimeout(keepPromoVideoPlaying, 3000);
+          });
+        }
+      });
+    }
+  }
+
+  function tryAutomaticSignageSound() {
+    soundRetryTimer = null;
+    if (!requestAutomaticSound || document.hidden) return;
+
     promoVideo.defaultMuted = false;
     promoVideo.muted = false;
     promoVideo.volume = 1;
@@ -603,12 +632,21 @@
     const playRequest = promoVideo.play();
     if (playRequest && typeof playRequest.catch === "function") {
       playRequest.catch(() => {
-        videoRetryTimer = window.setTimeout(keepPromoVideoPlaying, 3000);
+        promoVideo.defaultMuted = true;
+        promoVideo.muted = true;
+        promoVideo.play().catch(() => {});
+        soundRetryTimer = window.setTimeout(tryAutomaticSignageSound, 10000);
       });
     }
   }
 
+  function scheduleAutomaticSignageSound() {
+    if (!requestAutomaticSound || soundRetryTimer !== null || !promoVideo.muted) return;
+    soundRetryTimer = window.setTimeout(tryAutomaticSignageSound, 750);
+  }
+
   promoVideo.addEventListener("canplay", keepPromoVideoPlaying, { once: true });
+  promoVideo.addEventListener("playing", scheduleAutomaticSignageSound);
   promoVideo.addEventListener("ended", () => {
     promoVideo.currentTime = 0;
     keepPromoVideoPlaying();
@@ -624,8 +662,6 @@
       "Confirm that franklin_academy_promo_2026.mp4 is uploaded beside index.html."
     );
   }, { once: true });
-  document.addEventListener("pointerdown", keepPromoVideoPlaying, { once: true });
-  document.addEventListener("keydown", keepPromoVideoPlaying, { once: true });
 
   function resumeVideoPlayback() {
     keepPromoVideoPlaying();
