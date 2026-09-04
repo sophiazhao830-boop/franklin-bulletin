@@ -40,7 +40,7 @@
       width: 100vw;
       height: 100vh;
       display: grid;
-      grid-template-rows: 16% 1fr 7%;
+      grid-template-rows: 16% 1fr;
       background: var(--page);
     }
 
@@ -141,7 +141,7 @@
 
     main {
       display: grid;
-      grid-template-columns: 2.15fr 1fr;
+      grid-template-columns: 2.05fr 1fr;
       gap: 1.2vw;
       padding: 1.5vh 1.4vw;
       min-height: 0;
@@ -270,9 +270,32 @@
       color: var(--navy-dark);
     }
 
+    .calendar-event-title {
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+
+    .calendar-event-note {
+      display: -webkit-box;
+      overflow: hidden;
+      margin-top: .16vh;
+      color: #79525a;
+      font-size: clamp(10px, .68vw, 13px);
+      font-weight: 600;
+      line-height: 1.15;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+
+    .calendar-event.closed .calendar-event-note {
+      color: #566b83;
+    }
+
     .side {
       display: grid;
-      grid-template-rows: minmax(0, 1fr) minmax(190px, 24vh);
+      grid-template-rows: minmax(0, 1fr) minmax(220px, 28vh);
       gap: 1.2vh;
       min-height: 0;
     }
@@ -406,22 +429,8 @@
       line-height: 1.3;
     }
 
-    footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 1.8vw;
-      background: white;
-      border-top: 1px solid var(--line);
-      font-size: clamp(12px, .84vw, 15px);
-      color: var(--navy);
-      font-weight: 700;
-    }
-
-    .footer-source {
-      color: var(--muted);
-      font-size: clamp(10px, .72vw, 13px);
-      font-weight: 600;
+    @media (min-width: 1500px) and (min-aspect-ratio: 3/2) {
+      main { grid-template-columns: 1.65fr 1fr; }
     }
 
     @media (max-aspect-ratio: 4/3) {
@@ -496,9 +505,6 @@
       </aside>
     </main>
 
-    <footer>
-      <div>Welcome to Franklin Academy</div>
-    </footer>
   </div>
 
 <script>
@@ -788,8 +794,15 @@
       EVENTS.filter(event => isCurrentMonth && event.start <= cellKey && event.end >= cellKey).slice(0, 2).forEach(event => {
         const badge = document.createElement("div");
         badge.className = "calendar-event" + (event.closed ? " closed" : "");
-        badge.textContent = event.short;
-        badge.title = event.title;
+        const badgeTitle = document.createElement("div");
+        badgeTitle.className = "calendar-event-title";
+        badgeTitle.textContent = event.short;
+        const badgeNote = document.createElement("div");
+        badgeNote.className = "calendar-event-note";
+        badgeNote.textContent = event.note;
+        badge.appendChild(badgeTitle);
+        badge.appendChild(badgeNote);
+        badge.title = event.title + " — " + event.note;
         cell.appendChild(badge);
       });
       grid.appendChild(cell);
