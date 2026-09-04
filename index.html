@@ -346,7 +346,6 @@
     }
 
     .video-content {
-      position: relative;
       height: 100%;
       min-height: 0;
       padding: .45vh .35vw;
@@ -362,8 +361,6 @@
 
     .video-player {
       min-height: 0;
-      overflow: hidden;
-      border-radius: 9px;
       background: #000;
     }
 
@@ -372,29 +369,10 @@
       display: block;
       border: 0;
       background: #000;
+    }
+
+    .video-player video {
       object-fit: contain;
-    }
-
-    .video-sound-toggle {
-      position: absolute;
-      right: .75vw;
-      bottom: 1.05vh;
-      z-index: 3;
-      min-width: 112px;
-      padding: .55vh .7vw;
-      border: 1px solid rgba(255,255,255,.82);
-      border-radius: 999px;
-      background: rgba(9, 21, 37, .9);
-      box-shadow: 0 2px 8px rgba(0,0,0,.28);
-      color: white;
-      cursor: pointer;
-      font: inherit;
-      font-size: clamp(11px, .72vw, 14px);
-      font-weight: 700;
-    }
-
-    .video-sound-toggle[hidden] {
-      display: none;
     }
 
     .video-placeholder {
@@ -500,7 +478,6 @@
         <section class="panel video-panel">
           <div class="video-content">
             <div class="video-player" id="video-player" aria-label="Franklin Academy marketing videos"></div>
-            <button class="video-sound-toggle" id="video-sound-toggle" type="button" aria-pressed="false">🔇 Sound Off</button>
           </div>
         </section>
       </aside>
@@ -520,6 +497,12 @@
 
   const DASHBOARD_HAS_WEB_ORIGIN =
     window.location.protocol === "https:" || window.location.protocol === "http:";
+
+  const SOUND_MODE = new URLSearchParams(window.location.search).get("sound");
+  const IS_TV_OR_SIGNAGE_BROWSER =
+    /Android|SMART-TV|Tizen|HbbTV|Web0S|CrKey|AFT|\bTV\b/i.test(navigator.userAgent);
+  const VIDEO_STARTS_WITH_SOUND =
+    SOUND_MODE === "on" || (SOUND_MODE !== "off" && IS_TV_OR_SIGNAGE_BROWSER);
 
   function youtubeIdentityParameters() {
     if (!DASHBOARD_HAS_WEB_ORIGIN) return "";
@@ -646,18 +629,8 @@
 
   let currentVideoIndex = 0;
   let videoTimer = null;
-  let videoSoundEnabled = false;
 
-  function updateVideoSoundButton() {
-    const button = document.getElementById("video-sound-toggle");
-    button.hidden = false;
-    button.setAttribute("aria-pressed", String(videoSoundEnabled));
-    button.textContent = videoSoundEnabled ? "🔊 Sound On" : "🔇 Sound Off";
-    button.title = videoSoundEnabled ? "Mute videos" : "Turn video sound on";
-  }
-
-  function sendYouTubeCommand(command, args) {
-    const frame = document.querySelector("#video-player iframe");
+  function sendYouTubeCommand(frame, command, args) {
     if (!frame || !frame.contentWindow) return;
     frame.contentWindow.postMessage(JSON.stringify({
       event: "command",
@@ -666,28 +639,37 @@
     }), "https://www.youtube.com");
   }
 
-  function applyVideoSound() {
+  function requestVideoPlaybackWithSound() {
+    if (!VIDEO_STARTS_WITH_SOUND) return;
+
     const video = document.querySelector("#video-player video");
     if (video) {
-      video.muted = !videoSoundEnabled;
-      if (videoSoundEnabled) video.volume = 1;
+      video.muted = false;
+      video.volume = 1;
       video.play().catch(() => {});
     }
 
     const frame = document.querySelector("#video-player iframe");
     if (frame) {
-      sendYouTubeCommand(videoSoundEnabled ? "unMute" : "mute");
-      if (videoSoundEnabled) sendYouTubeCommand("setVolume", [100]);
-      sendYouTubeCommand("playVideo");
+      sendYouTubeCommand(frame, "unMute");
+      sendYouTubeCommand(frame, "setVolume", [100]);
+      sendYouTubeCommand(frame, "playVideo");
     }
-
-    updateVideoSoundButton();
   }
 
-  document.getElementById("video-sound-toggle").addEventListener("click", () => {
-    videoSoundEnabled = !videoSoundEnabled;
-    applyVideoSound();
-  });
+  function requestYouTubeSoundAfterLoad(frame) {
+    if (!VIDEO_STARTS_WITH_SOUND) return;
+
+    frame.addEventListener("load", () => {
+      [500, 2000, 5000].forEach(delay => {
+        window.setTimeout(() => {
+          if (document.querySelector("#video-player iframe") === frame) {
+            requestVideoPlaybackWithSound();
+          }
+        }, delay);
+      });
+    }, { once: true });
+  }
 
   function clearVideoTimer() {
     if (videoTimer !== null) window.clearTimeout(videoTimer);
@@ -697,7 +679,6 @@
   function showVideoPlaceholder(title, note) {
     const player = document.getElementById("video-player");
     player.replaceChildren();
-    document.getElementById("video-sound-toggle").hidden = true;
 
     const placeholder = document.createElement("div");
     placeholder.className = "video-placeholder";
@@ -744,12 +725,12 @@
       frame.referrerPolicy = "strict-origin-when-cross-origin";
       frame.loading = "eager";
       frame.src =
-        "https://www.youtube.com/embed?listType=playlist&list=" + encodeURIComponent(item.id) +
-        "&autoplay=1&mute=" + (videoSoundEnabled ? "0" : "1") +
-        "&controls=0&loop=1&playsinline=1&rel=0&enablejsapi=1" +
+        "https://www.youtube.com/embed/videoseries?list=" + encodeURIComponent(item.id) +
+        "&autoplay=1&mute=" + (VIDEO_STARTS_WITH_SOUND ? "0" : "1") +
+        "&controls=0&loop=1&playsinline=1&rel=0&enablejsapi=1&cc_load_policy=0" +
         youtubeIdentityParameters();
+      requestYouTubeSoundAfterLoad(frame);
       player.appendChild(frame);
-      updateVideoSoundButton();
       scheduleNextVideo(item.seconds);
       return;
     }
@@ -762,11 +743,11 @@
       frame.loading = "eager";
       frame.src =
         "https://www.youtube.com/embed/" + encodeURIComponent(item.id) +
-        "?autoplay=1&mute=" + (videoSoundEnabled ? "0" : "1") +
+        "?autoplay=1&mute=" + (VIDEO_STARTS_WITH_SOUND ? "0" : "1") +
         "&controls=0&loop=1&playlist=" + encodeURIComponent(item.id) +
-        "&playsinline=1&rel=0&enablejsapi=1" + youtubeIdentityParameters();
+        "&playsinline=1&rel=0&enablejsapi=1&cc_load_policy=0" + youtubeIdentityParameters();
+      requestYouTubeSoundAfterLoad(frame);
       player.appendChild(frame);
-      updateVideoSoundButton();
       scheduleNextVideo(item.seconds);
       return;
     }
@@ -774,7 +755,7 @@
     const video = document.createElement("video");
     video.title = item.title || "Franklin Academy Google Drive video";
     video.autoplay = true;
-    video.muted = !videoSoundEnabled;
+    video.muted = !VIDEO_STARTS_WITH_SOUND;
     video.playsInline = true;
     video.controls = false;
     video.loop = VIDEO_ITEMS.length === 1;
@@ -789,7 +770,6 @@
       }
     }, { once: true });
     player.appendChild(video);
-    updateVideoSoundButton();
     video.play().catch(() => {});
     if (item.seconds) scheduleNextVideo(item.seconds);
   }
@@ -797,6 +777,7 @@
   function resumeVideoPlayback() {
     const video = document.querySelector("#video-player video");
     if (video) video.play().catch(() => {});
+    requestVideoPlaybackWithSound();
   }
 
   playVideo(0);

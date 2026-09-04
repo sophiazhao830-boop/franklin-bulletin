@@ -14,8 +14,10 @@ Version 19 YouTube correction (Error 153 hotfix):
 
 Autoplay correction retained from Version 18:
 - Connects the video panel directly to Franklin Academy’s official YouTube uploads playlist.
-- Starts the latest public channel video automatically with sound muted.
-- Use the Sound Off button on the video to turn audio on; the setting remains active as the dashboard advances through its playlist.
+- Starts the latest public channel video automatically with sound at full volume for unattended TV display.
+- Repeats the play and unmute commands after the YouTube player loads so no on-screen click is required.
+- Detects Android TV and smart-TV browsers automatically while keeping computer autoplay reliable.
+- Uses YouTube's standard videoseries playlist address for better compatibility with smart-TV browsers.
 - Continues through the channel’s public uploads and loops the playlist.
 - Removes the empty “Video playlist ready” screen from Version 17.
 - Does not require individual YouTube links for the official channel videos.
@@ -25,7 +27,7 @@ Video panel retained from Version 17:
 - Keeps the video panel aligned with the right-side events section.
 - Shows the next six events above the video so each event card remains readable.
 - Supports individual public YouTube and Google Drive video links.
-- Starts videos muted so TV browsers are more likely to allow autoplay.
+- Requests autoplay with sound for unattended TV display.
 - Loops one video continuously or cycles through several videos.
 - Restarts Google Drive video playback when the TV browser wakes up.
 
@@ -47,7 +49,10 @@ https://www.youtube.com/@FranklinAcademy-K12/videos
 
 Google Drive sharing:
 - Set every Drive video to “Anyone with the link” before using it.
-- Keep the videos muted for reliable autoplay on the Samsung TV.
+- The dashboard requests autoplay with sound automatically on Android TV and smart-TV browsers.
+- In Screen Keep, make sure the display's Mute option is off.
+- If the TV is not detected automatically, add ?sound=on to the end of the dashboard URL saved in Screen Keep.
+- If a computer must autoplay silently, add ?sound=off to its dashboard URL.
 - Very large Drive files may not stream through the direct link. YouTube is the more reliable choice for TV playback.
 
 Version 17 calendar update:
