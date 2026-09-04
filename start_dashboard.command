@@ -4,6 +4,11 @@ set -eu
 
 dashboard_dir="${0:A:h}"
 dashboard_port="${FRANKLIN_DASHBOARD_PORT:-8765}"
+
+while /usr/sbin/lsof -nP -iTCP:"$dashboard_port" -sTCP:LISTEN >/dev/null 2>&1; do
+  dashboard_port=$((dashboard_port + 1))
+done
+
 dashboard_url="http://127.0.0.1:${dashboard_port}/"
 
 cd "$dashboard_dir"

@@ -4,7 +4,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>Franklin Academy Dashboard</title>
   <style>
     :root {
@@ -345,11 +344,16 @@
       text-align: center;
     }
 
+    .video-panel .panel-title {
+      min-height: 42px;
+      font-size: clamp(16px, 1.12vw, 22px);
+    }
+
     .video-content {
       height: 100%;
       min-height: 0;
-      padding: .45vh .35vw;
-      background: #091525;
+      padding: 0;
+      background: #000;
     }
 
     .video-player,
@@ -361,6 +365,7 @@
 
     .video-player {
       min-height: 0;
+      overflow: hidden;
       background: #000;
     }
 
@@ -369,9 +374,6 @@
       display: block;
       border: 0;
       background: #000;
-    }
-
-    .video-player video {
       object-fit: contain;
     }
 
@@ -477,7 +479,17 @@
 
         <section class="panel video-panel">
           <div class="video-content">
-            <div class="video-player" id="video-player" aria-label="Franklin Academy marketing videos"></div>
+            <div class="video-player" id="video-player">
+              <video
+                id="promo-video"
+                src="franklin_academy_promo_2026.mp4"
+                autoplay
+                loop
+                playsinline
+                preload="auto"
+                aria-label="Franklin Academy 2026 promotional video"
+              ></video>
+            </div>
           </div>
         </section>
       </aside>
@@ -493,37 +505,6 @@
     latitude: 33.6846,
     longitude: -117.8265,
     timeZone: "America/Los_Angeles"
-  };
-
-  const DASHBOARD_HAS_WEB_ORIGIN =
-    window.location.protocol === "https:" || window.location.protocol === "http:";
-
-  const SOUND_MODE = new URLSearchParams(window.location.search).get("sound");
-  const IS_TV_OR_SIGNAGE_BROWSER =
-    /Android|SMART-TV|Tizen|HbbTV|Web0S|CrKey|AFT|\bTV\b/i.test(navigator.userAgent);
-  const VIDEO_STARTS_WITH_SOUND =
-    SOUND_MODE === "on" || (SOUND_MODE !== "off" && IS_TV_OR_SIGNAGE_BROWSER);
-
-  function youtubeIdentityParameters() {
-    if (!DASHBOARD_HAS_WEB_ORIGIN) return "";
-    const origin = window.location.origin;
-    const pageUrl = window.location.href.split("#")[0].split("?")[0];
-    return "&origin=" + encodeURIComponent(origin) + "&widget_referrer=" + encodeURIComponent(pageUrl);
-  }
-
-  // The official Franklin Academy YouTube uploads playlist plays by default.
-  // Add optional public YouTube or Google Drive video links here. When custom
-  // items are added, the channel playlist plays first and then the custom items.
-  const VIDEO_PLAYLIST = [
-    // { type: "youtube", url: "https://www.youtube.com/watch?v=VIDEO_ID", seconds: 60, title: "Campus Tour" },
-    // { type: "drive", url: "https://drive.google.com/file/d/FILE_ID/view", title: "Student Programs" }
-  ];
-
-  const FRANKLIN_UPLOADS = {
-    type: "youtube-playlist",
-    id: "UU0f-sVFn8k1UkRKusLzOHgQ",
-    seconds: 600,
-    title: "Franklin Academy YouTube Channel"
   };
 
   // Public events verified from Franklin Academy's official .us event pages.
@@ -591,91 +572,6 @@
   const SHORT_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-  function extractYouTubeId(value) {
-    const text = String(value || "").trim();
-    if (/^[A-Za-z0-9_-]{11}$/.test(text)) return text;
-    try {
-      const url = new URL(text);
-      if (url.hostname === "youtu.be") return url.pathname.split("/").filter(Boolean)[0] || "";
-      if (url.searchParams.get("v")) return url.searchParams.get("v");
-      const parts = url.pathname.split("/").filter(Boolean);
-      const marker = parts.findIndex(part => part === "embed" || part === "shorts" || part === "live");
-      return marker >= 0 ? (parts[marker + 1] || "") : "";
-    } catch (error) {
-      return "";
-    }
-  }
-
-  function extractDriveId(value) {
-    const text = String(value || "").trim();
-    if (/^[A-Za-z0-9_-]{20,}$/.test(text)) return text;
-    const pathMatch = text.match(/\/file\/d\/([A-Za-z0-9_-]+)/);
-    if (pathMatch) return pathMatch[1];
-    try {
-      const url = new URL(text);
-      return url.searchParams.get("id") || "";
-    } catch (error) {
-      return "";
-    }
-  }
-
-  const CUSTOM_VIDEO_ITEMS = VIDEO_PLAYLIST.map(item => {
-    const type = String(item.type || "").toLowerCase();
-    const id = type === "youtube" ? extractYouTubeId(item.url || item.id) : extractDriveId(item.url || item.id);
-    return Object.assign({}, item, { type: type, id: id });
-  }).filter(item => (item.type === "youtube" || item.type === "drive") && item.id);
-
-  const VIDEO_ITEMS = [FRANKLIN_UPLOADS].concat(CUSTOM_VIDEO_ITEMS);
-
-  let currentVideoIndex = 0;
-  let videoTimer = null;
-
-  function sendYouTubeCommand(frame, command, args) {
-    if (!frame || !frame.contentWindow) return;
-    frame.contentWindow.postMessage(JSON.stringify({
-      event: "command",
-      func: command,
-      args: args || []
-    }), "https://www.youtube.com");
-  }
-
-  function requestVideoPlaybackWithSound() {
-    if (!VIDEO_STARTS_WITH_SOUND) return;
-
-    const video = document.querySelector("#video-player video");
-    if (video) {
-      video.muted = false;
-      video.volume = 1;
-      video.play().catch(() => {});
-    }
-
-    const frame = document.querySelector("#video-player iframe");
-    if (frame) {
-      sendYouTubeCommand(frame, "unMute");
-      sendYouTubeCommand(frame, "setVolume", [100]);
-      sendYouTubeCommand(frame, "playVideo");
-    }
-  }
-
-  function requestYouTubeSoundAfterLoad(frame) {
-    if (!VIDEO_STARTS_WITH_SOUND) return;
-
-    frame.addEventListener("load", () => {
-      [500, 2000, 5000].forEach(delay => {
-        window.setTimeout(() => {
-          if (document.querySelector("#video-player iframe") === frame) {
-            requestVideoPlaybackWithSound();
-          }
-        }, delay);
-      });
-    }, { once: true });
-  }
-
-  function clearVideoTimer() {
-    if (videoTimer !== null) window.clearTimeout(videoTimer);
-    videoTimer = null;
-  }
-
   function showVideoPlaceholder(title, note) {
     const player = document.getElementById("video-player");
     player.replaceChildren();
@@ -695,92 +591,47 @@
     player.appendChild(placeholder);
   }
 
-  function scheduleNextVideo(seconds) {
-    clearVideoTimer();
-    if (VIDEO_ITEMS.length < 2) return;
-    const safeSeconds = Math.max(10, Number(seconds) || 90);
-    videoTimer = window.setTimeout(() => playVideo(currentVideoIndex + 1), safeSeconds * 1000);
+  const promoVideo = document.getElementById("promo-video");
+  let videoRetryTimer = null;
+
+  function keepPromoVideoPlaying() {
+    if (videoRetryTimer !== null) window.clearTimeout(videoRetryTimer);
+    promoVideo.defaultMuted = false;
+    promoVideo.muted = false;
+    promoVideo.volume = 1;
+
+    const playRequest = promoVideo.play();
+    if (playRequest && typeof playRequest.catch === "function") {
+      playRequest.catch(() => {
+        videoRetryTimer = window.setTimeout(keepPromoVideoPlaying, 3000);
+      });
+    }
   }
 
-  function playVideo(index) {
-    clearVideoTimer();
-
-    currentVideoIndex = ((index % VIDEO_ITEMS.length) + VIDEO_ITEMS.length) % VIDEO_ITEMS.length;
-    const item = VIDEO_ITEMS[currentVideoIndex];
-    const player = document.getElementById("video-player");
-    player.replaceChildren();
-
-    if ((item.type === "youtube-playlist" || item.type === "youtube") && !DASHBOARD_HAS_WEB_ORIGIN) {
-      showVideoPlaceholder(
-        "Open with the dashboard launcher",
-        "YouTube now requires a web address. Double-click start_dashboard.command for a local preview, or open the published GitHub Pages dashboard."
-      );
-      return;
+  promoVideo.addEventListener("canplay", keepPromoVideoPlaying, { once: true });
+  promoVideo.addEventListener("ended", () => {
+    promoVideo.currentTime = 0;
+    keepPromoVideoPlaying();
+  });
+  promoVideo.addEventListener("pause", () => {
+    if (!document.hidden) {
+      videoRetryTimer = window.setTimeout(keepPromoVideoPlaying, 1000);
     }
-
-    if (item.type === "youtube-playlist") {
-      const frame = document.createElement("iframe");
-      frame.title = item.title || "Franklin Academy YouTube uploads";
-      frame.allow = "autoplay; encrypted-media; picture-in-picture";
-      frame.referrerPolicy = "strict-origin-when-cross-origin";
-      frame.loading = "eager";
-      frame.src =
-        "https://www.youtube.com/embed/videoseries?list=" + encodeURIComponent(item.id) +
-        "&autoplay=1&mute=" + (VIDEO_STARTS_WITH_SOUND ? "0" : "1") +
-        "&controls=0&loop=1&playsinline=1&rel=0&enablejsapi=1&cc_load_policy=0" +
-        youtubeIdentityParameters();
-      requestYouTubeSoundAfterLoad(frame);
-      player.appendChild(frame);
-      scheduleNextVideo(item.seconds);
-      return;
-    }
-
-    if (item.type === "youtube") {
-      const frame = document.createElement("iframe");
-      frame.title = item.title || "Franklin Academy YouTube video";
-      frame.allow = "autoplay; encrypted-media; picture-in-picture";
-      frame.referrerPolicy = "strict-origin-when-cross-origin";
-      frame.loading = "eager";
-      frame.src =
-        "https://www.youtube.com/embed/" + encodeURIComponent(item.id) +
-        "?autoplay=1&mute=" + (VIDEO_STARTS_WITH_SOUND ? "0" : "1") +
-        "&controls=0&loop=1&playlist=" + encodeURIComponent(item.id) +
-        "&playsinline=1&rel=0&enablejsapi=1&cc_load_policy=0" + youtubeIdentityParameters();
-      requestYouTubeSoundAfterLoad(frame);
-      player.appendChild(frame);
-      scheduleNextVideo(item.seconds);
-      return;
-    }
-
-    const video = document.createElement("video");
-    video.title = item.title || "Franklin Academy Google Drive video";
-    video.autoplay = true;
-    video.muted = !VIDEO_STARTS_WITH_SOUND;
-    video.playsInline = true;
-    video.controls = false;
-    video.loop = VIDEO_ITEMS.length === 1;
-    video.preload = "auto";
-    video.src = "https://drive.google.com/uc?export=download&id=" + encodeURIComponent(item.id);
-    video.addEventListener("ended", () => playVideo(currentVideoIndex + 1), { once: true });
-    video.addEventListener("error", () => {
-      if (VIDEO_ITEMS.length > 1) {
-        videoTimer = window.setTimeout(() => playVideo(currentVideoIndex + 1), 5000);
-      } else {
-        showVideoPlaceholder("Video could not load", "Confirm that the Google Drive file is shared with anyone who has the link.");
-      }
-    }, { once: true });
-    player.appendChild(video);
-    video.play().catch(() => {});
-    if (item.seconds) scheduleNextVideo(item.seconds);
-  }
+  });
+  promoVideo.addEventListener("error", () => {
+    showVideoPlaceholder(
+      "Video could not load",
+      "Confirm that franklin_academy_promo_2026.mp4 is uploaded beside index.html."
+    );
+  }, { once: true });
+  document.addEventListener("pointerdown", keepPromoVideoPlaying, { once: true });
+  document.addEventListener("keydown", keepPromoVideoPlaying, { once: true });
 
   function resumeVideoPlayback() {
-    const video = document.querySelector("#video-player video");
-    if (video) video.play().catch(() => {});
-    requestVideoPlaybackWithSound();
+    keepPromoVideoPlaying();
   }
 
-  playVideo(0);
+  keepPromoVideoPlaying();
 
   function todayParts() {
     const parts = new Intl.DateTimeFormat("en-US", {

@@ -3,57 +3,22 @@ Franklin Academy Front Desk Digital Bulletin Board — Version 19
 Files:
 1. index.html — complete dashboard with the logo embedded directly.
 2. franklin_logo_v19_all_white_details.png — high-resolution transparent logo used in Version 19.
+3. franklin_academy_promo_2026.mp4 — optimized web/TV copy of the Franklin Academy promotional video.
+4. start_dashboard.command — local Mac preview launcher.
 
-Version 19 YouTube correction (Error 153 hotfix):
-- Uses YouTube's recommended strict-origin-when-cross-origin referral policy.
-- Uses the dashboard's real web origin instead of trying to substitute a GitHub address during local-file previews.
-- Adds start_dashboard.command for a one-click local preview with the HTTP referrer YouTube now requires.
-- Shows a clear launcher message instead of YouTube Error 153 if index.html is opened directly from disk.
-- Removes the “Franklin Academy Videos” heading and the “Channel” label.
-- Expands the video player to use the complete lower-right panel.
-
-Autoplay correction retained from Version 18:
-- Connects the video panel directly to Franklin Academy’s official YouTube uploads playlist.
-- Starts the latest public channel video automatically with sound at full volume for unattended TV display.
-- Repeats the play and unmute commands after the YouTube player loads so no on-screen click is required.
-- Detects Android TV and smart-TV browsers automatically while keeping computer autoplay reliable.
-- Uses YouTube's standard videoseries playlist address for better compatibility with smart-TV browsers.
-- Continues through the channel’s public uploads and loops the playlist.
-- Removes the empty “Video playlist ready” screen from Version 17.
-- Does not require individual YouTube links for the official channel videos.
+Version 19 local-video update:
+- Replaces the YouTube player with FA宣传片2026.mp4.
+- Uses a clear, web-optimized H.264/AAC copy sized for the dashboard's video panel and Android TV compatibility.
+- Starts with sound at full volume and no on-screen click.
+- Loops continuously with automatic replay and recovery after TV sleep or focus changes.
+- Uses the complete video panel without a heading or player controls.
 
 Video panel retained from Version 17:
-- Adds a compact “Franklin Academy Videos” panel below the events panel.
+- Adds a compact promotional-video panel below the events panel.
 - Keeps the video panel aligned with the right-side events section.
 - Shows the next six events above the video so each event card remains readable.
-- Supports individual public YouTube and Google Drive video links.
-- Requests autoplay with sound for unattended TV display.
-- Loops one video continuously or cycles through several videos.
-- Restarts Google Drive video playback when the TV browser wakes up.
-
-How to add optional extra videos:
-1. Open index.html in a text editor.
-2. Find the VIDEO_PLAYLIST list near the top of the script.
-3. Paste one entry for each video. Use the formats below.
-
-YouTube example:
-{ type: "youtube", url: "https://www.youtube.com/watch?v=VIDEO_ID", seconds: 60, title: "Campus Tour" }
-
-Google Drive example:
-{ type: "drive", url: "https://drive.google.com/file/d/FILE_ID/view", title: "Student Programs" }
-
-The official YouTube channel playlist already plays when this list is empty. Separate several custom entries with commas. The channel playlist plays for ten minutes before the player moves to the first custom item. The YouTube seconds value should be close to the full video length because it controls when the next custom video begins. Google Drive videos normally advance when each video ends.
-
-YouTube channel:
-https://www.youtube.com/@FranklinAcademy-K12/videos
-
-Google Drive sharing:
-- Set every Drive video to “Anyone with the link” before using it.
-- The dashboard requests autoplay with sound automatically on Android TV and smart-TV browsers.
-- In Screen Keep, make sure the display's Mute option is off.
-- If the TV is not detected automatically, add ?sound=on to the end of the dashboard URL saved in Screen Keep.
-- If a computer must autoplay silently, add ?sound=off to its dashboard URL.
-- Very large Drive files may not stream through the direct link. YouTube is the more reliable choice for TV playback.
+- Displays the complete video without cropping.
+- Restarts video playback when the TV browser wakes up.
 
 Version 17 calendar update:
 - Adds Quarter 4 Assessments from June 1 through June 9, 2027.
@@ -125,14 +90,14 @@ Logo:
 To preview on this Mac:
 1. Double-click start_dashboard.command.
 2. Keep the Terminal window open while the dashboard is running.
-3. The dashboard opens at http://127.0.0.1:8765/ and YouTube videos play automatically.
-4. Press Control-C in the Terminal window when you are finished.
+3. The dashboard opens at http://127.0.0.1:8765/.
+4. Press Control-C in the Terminal window when finished.
 
-Do not double-click index.html for video testing. YouTube now rejects embedded players opened directly from a file because file:// pages cannot send the required HTTP Referer header. The published GitHub Pages dashboard is already served through HTTPS and does not need the launcher.
+Browsers can block automatic sound. For unattended TV playback, turn off Mute for this display in Screen Keep and make sure the TV volume is on.
 
-For GitHub Pages and the Samsung TV:
-1. Add any optional extra video links to VIDEO_PLAYLIST in this Version 19 index.html.
-2. Replace the existing repository index.html with this Version 19 index.html.
-3. Commit and push the change.
-4. Wait for GitHub Pages to finish deploying.
-5. Refresh the dashboard URL in the Samsung TV browser.
+For GitHub Pages and the TV:
+1. Upload both index.html and franklin_academy_promo_2026.mp4 to the repository's top folder.
+2. Commit and push both files.
+3. Wait for GitHub Pages to finish deploying.
+4. In Screen Keep, confirm that Mute is off for the display.
+5. Refresh the dashboard URL on the TV.
