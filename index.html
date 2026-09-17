@@ -367,6 +367,27 @@
       text-align: center;
     }
 
+    .flyer-panel {
+      background: #142352;
+    }
+
+    .flyer-display {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #142352;
+    }
+
+    .flyer-display img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
     .video-panel .panel-title {
       min-height: 42px;
       font-size: clamp(16px, 1.12vw, 22px);
@@ -478,12 +499,12 @@
       </section>
 
       <aside class="side">
-        <section class="panel">
-          <div class="panel-title">
-            <span>Next Events &amp; Holidays</span>
-          </div>
-          <div class="side-content">
-            <div class="key-dates" id="upcoming-events"></div>
+        <section class="panel flyer-panel" aria-label="Featured upcoming event">
+          <div class="flyer-display">
+            <img
+              src="assets/mid-autumn-festival-2026.jpg"
+              alt="Happy Mid-Autumn Festival in-class celebration on September 25, 2026"
+            />
           </div>
         </section>
 
@@ -813,7 +834,6 @@
     const today = todayParts();
     const todayKey = makeKey(today.year, today.month, today.day);
     const displayMonth = nextActiveMonth(today);
-    renderUpcomingEvents(todayKey);
     renderCalendar(displayMonth.year, displayMonth.month, todayKey);
   }
 
