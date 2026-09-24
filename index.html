@@ -311,12 +311,10 @@
     .calendar-day.many-events .calendar-event {
       margin-top: .16vh;
       padding: .25vh .3vw;
-      font-size: clamp(10px, .68vw, 13px);
-      line-height: 1.05;
     }
 
     .calendar-day.many-events .calendar-event-title {
-      -webkit-line-clamp: 1;
+      -webkit-line-clamp: 2;
     }
 
     .calendar-day.many-events .calendar-event-note {
@@ -889,7 +887,7 @@
         if (event.display === "start") return event.start === cellKey;
         return event.start <= cellKey && event.end >= cellKey;
       });
-      if (cellEvents.length > 2) cell.classList.add("many-events");
+      if (cellEvents.length > 1) cell.classList.add("many-events");
 
       cellEvents.forEach(event => {
         const badge = document.createElement("div");
