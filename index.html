@@ -212,6 +212,9 @@
     }
 
     .calendar-grid {
+      --range-height: calc(clamp(12px, .82vw, 16px) * 1.2 + .8vh);
+      --range-gap: .3vh;
+      --range-top: calc(.8vh + clamp(12px, .86vw, 16px) * 1.2);
       display: grid;
       grid-template-columns: repeat(7, minmax(0, 1fr));
       gap: 1px;
@@ -252,6 +255,7 @@
     }
 
     .calendar-day-number {
+      line-height: 1.2;
       margin-bottom: .35vh;
       color: var(--navy);
       font-size: clamp(12px, .86vw, 16px);
@@ -320,6 +324,32 @@
     .calendar-day.many-events .calendar-event-note {
       display: none;
     }
+
+    .calendar-range-space {
+      height: calc(var(--range-lanes) * (var(--range-height) + var(--range-gap)));
+    }
+
+    .calendar-range {
+      z-index: 1;
+      align-self: start;
+      min-width: 0;
+      height: var(--range-height);
+      margin: calc(var(--range-top) + var(--range-lane) * (var(--range-height) + var(--range-gap))) .15vw 0;
+      padding: .4vh .5vw;
+      border-radius: 6px;
+      background: #ead3d8;
+      color: #5f1d26;
+      font-size: clamp(12px, .82vw, 16px);
+      font-weight: 700;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .calendar-range.closed { background: #d6e4f1; color: var(--navy-dark); }
+    .calendar-range.continues-before { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+    .calendar-range.continues-after { border-top-right-radius: 0; border-bottom-right-radius: 0; }
 
     .side {
       display: grid;
@@ -849,6 +879,30 @@
     });
   }
 
+  // Assign non-overlapping lanes to multi-day bars within each Sunday–Saturday row.
+  function calendarRanges(year, month, weekCount, firstWeekday) {
+    const keyAt = index => {
+      const date = new Date(Date.UTC(year, month - 1, index - firstWeekday + 1));
+      return makeKey(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
+    };
+    return Array.from({ length: weekCount }, (_, week) => {
+      const keys = Array.from({ length: 7 }, (_, day) => keyAt(week * 7 + day));
+      const laneEnds = [];
+      return EVENTS.filter(event => event.display !== "start" && event.start !== event.end &&
+        event.start <= keys[6] && event.end >= keys[0])
+        .sort((a, b) => a.start.localeCompare(b.start) || b.end.localeCompare(a.end))
+        .map(event => {
+          const start = keys.findIndex(key => key >= event.start);
+          let end = 6;
+          while (keys[end] > event.end) end -= 1;
+          let lane = laneEnds.findIndex(last => last < start);
+          if (lane === -1) lane = laneEnds.length;
+          laneEnds[lane] = end;
+          return { event, start, end, lane, before: event.start < keys[0], after: event.end > keys[6] };
+        });
+    });
+  }
+
   function renderCalendar(year, month, todayKey) {
     document.getElementById("calendar-month-name").textContent = MONTHS[month - 1] + " " + year;
     renderTbdEvents(year, month);
@@ -856,10 +910,12 @@
     grid.setAttribute("aria-label", MONTHS[month - 1] + " " + year + " Franklin Academy events calendar");
     while (grid.firstChild) grid.removeChild(grid.firstChild);
 
-    WEEKDAYS.forEach(day => {
+    WEEKDAYS.forEach((day, column) => {
       const label = document.createElement("div");
       label.className = "calendar-weekday";
       label.textContent = day;
+      label.style.gridRow = "1";
+      label.style.gridColumn = String(column + 1);
       grid.appendChild(label);
     });
 
@@ -867,6 +923,7 @@
     const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
     const weekCount = Math.ceil((firstWeekday + daysInMonth) / 7);
     grid.style.gridTemplateRows = "34px repeat(" + weekCount + ", minmax(0, 1fr))";
+    const ranges = calendarRanges(year, month, weekCount, firstWeekday);
 
     for (let index = 0; index < weekCount * 7; index += 1) {
       const date = new Date(Date.UTC(year, month - 1, index - firstWeekday + 1));
@@ -877,17 +934,28 @@
       const isCurrentMonth = cellMonth === month;
       const cell = document.createElement("div");
       cell.className = "calendar-day" + (isCurrentMonth ? "" : " outside") + (cellKey === todayKey ? " today" : "");
+      const week = Math.floor(index / 7);
+      const column = index % 7;
+      cell.style.gridRow = String(week + 2);
+      cell.style.gridColumn = String(column + 1);
+      const dayRanges = ranges[week].filter(range => range.start <= column && range.end >= column);
 
       const number = document.createElement("div");
       number.className = "calendar-day-number";
       number.textContent = cellDay;
       cell.appendChild(number);
+      if (dayRanges.length) {
+        const space = document.createElement("div");
+        space.className = "calendar-range-space";
+        space.style.setProperty("--range-lanes", String(Math.max(...dayRanges.map(range => range.lane)) + 1));
+        cell.appendChild(space);
+      }
 
       const cellEvents = EVENTS.filter(event => {
         if (event.display === "start") return event.start === cellKey;
-        return event.start <= cellKey && event.end >= cellKey;
+        return event.start === event.end && event.start === cellKey;
       });
-      if (cellEvents.length > 1) cell.classList.add("many-events");
+      if (cellEvents.length + dayRanges.length > 1) cell.classList.add("many-events");
 
       cellEvents.forEach(event => {
         const badge = document.createElement("div");
@@ -905,6 +973,23 @@
       });
       grid.appendChild(cell);
     }
+    ranges.forEach((weekRanges, week) => weekRanges.forEach(range => {
+      const event = range.event;
+      const bar = document.createElement("div");
+      bar.className = "calendar-range" + (event.closed ? " closed" : "") +
+        (range.before ? " continues-before" : "") + (range.after ? " continues-after" : "");
+      bar.style.gridRow = String(week + 2);
+      bar.style.gridColumn = (range.start + 1) + " / " + (range.end + 2);
+      bar.style.setProperty("--range-lane", String(range.lane));
+      const start = keyParts(event.start);
+      const end = keyParts(event.end);
+      const dateRange = SHORT_MONTHS[start.month - 1] + " " + start.day + "–" +
+        (start.month === end.month && start.year === end.year ? "" : SHORT_MONTHS[end.month - 1] + " ") + end.day;
+      bar.textContent = event.short + " · " + dateRange;
+      bar.title = event.title + " — " + event.start + " to " + event.end + " — " + event.note;
+      bar.setAttribute("aria-label", bar.title);
+      grid.appendChild(bar);
+    }));
   }
 
   function renderEventViews() {
