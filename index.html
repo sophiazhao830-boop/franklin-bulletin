@@ -425,25 +425,18 @@
       text-align: center;
     }
 
-    .flyer-panel {
-      background: #142352;
-    }
-
-    .flyer-display {
-      width: 100%;
-      height: 100%;
+    .events-panel {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      background: #142352;
+      flex-direction: column;
     }
-
-    .flyer-display img {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
+    .events-panel .panel-title { flex: 0 0 auto; }
+    .events-panel .side-content { flex: 1; height: auto; }
+    .events-month {
+      font-size: clamp(12px, .8vw, 15px);
+      font-weight: 400;
+      color: var(--muted);
+      text-align: right;
+      margin-left: .8vw;
     }
 
     .video-panel .panel-title {
@@ -558,12 +551,13 @@
       </section>
 
       <aside class="side">
-        <section class="panel flyer-panel" aria-label="Featured upcoming event">
-          <div class="flyer-display">
-            <img
-              src="Blue%20Illustrations%20Mid%20Autumn%20Festival%20Instagram%20Post%20(2).jpg"
-              alt="Happy Mid-Autumn Festival in-class celebration on September 25, 2026"
-            />
+        <section class="panel events-panel" aria-labelledby="events-heading">
+          <div class="panel-title">
+            <span id="events-heading">Coming Up This Month</span>
+            <span class="events-month" id="events-month"></span>
+          </div>
+          <div class="side-content">
+            <div class="key-dates" id="upcoming-events"></div>
           </div>
         </section>
 
@@ -843,16 +837,33 @@
     return [SHORT_MONTHS[start.month - 1] + " " + start.day, "to " + SHORT_MONTHS[end.month - 1] + " " + end.day];
   }
 
-  function renderUpcomingEvents(todayKey) {
+  let upcomingPage = 0;
+  let upcomingMonthKey = "";
+
+  function renderUpcomingEvents(todayKey, year, month) {
     const container = document.getElementById("upcoming-events");
     while (container.firstChild) container.removeChild(container.firstChild);
-    const upcoming = EVENTS.filter(event => event.end >= todayKey).slice(0, 6);
+    const monthStart = makeKey(year, month, 1);
+    const monthEnd = makeKey(year, month, new Date(Date.UTC(year, month, 0)).getUTCDate());
+    if (upcomingMonthKey !== monthStart) {
+      upcomingPage = 0;
+      upcomingMonthKey = monthStart;
+    }
+    const monthlyEvents = EVENTS.filter(event => event.start <= monthEnd &&
+      event.end >= monthStart && event.end >= todayKey &&
+      (event.display !== "start" || event.start >= monthStart && event.start >= todayKey))
+      .sort((a, b) => a.start.localeCompare(b.start));
+    const pageCount = Math.max(1, Math.ceil(monthlyEvents.length / 6));
+    upcomingPage %= pageCount;
+    const upcoming = monthlyEvents.slice(upcomingPage * 6, (upcomingPage + 1) * 6);
+    document.getElementById("events-month").textContent = MONTHS[month - 1] + " " + year +
+      (pageCount > 1 ? " · " + (upcomingPage + 1) + "/" + pageCount : "");
 
     if (upcoming.length === 0) {
       container.style.gridTemplateRows = "minmax(0, 1fr)";
       const empty = document.createElement("div");
       empty.className = "empty-events";
-      empty.textContent = "No upcoming events or holidays are currently listed.";
+      empty.textContent = "No more events are scheduled for " + MONTHS[month - 1] + ".";
       container.appendChild(empty);
       return;
     }
@@ -1003,10 +1014,18 @@
     const todayKey = makeKey(today.year, today.month, today.day);
     const displayMonth = displayMonthForDate(today);
     renderCalendar(displayMonth.year, displayMonth.month, todayKey);
+    renderUpcomingEvents(todayKey, displayMonth.year, displayMonth.month);
   }
 
   renderEventViews();
   setInterval(renderEventViews, 15 * 60 * 1000);
+  // Rotate only the event list; keep the calendar and video undisturbed.
+  setInterval(() => {
+    upcomingPage += 1;
+    const today = todayParts();
+    const displayMonth = displayMonthForDate(today);
+    renderUpcomingEvents(makeKey(today.year, today.month, today.day), displayMonth.year, displayMonth.month);
+  }, 15 * 1000);
 
   let clockTimer = null;
   let lastClockMinute = "";
