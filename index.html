@@ -597,6 +597,12 @@
   // Franklin Academy 2026-27 School Year Calendar, revised September 24, 2026.
   // Events without confirmed dates are listed separately in TBD_EVENTS so the
   // dashboard does not imply a date that the school has not announced.
+  // Permanent display rule for current and future calendars: enter each multi-day
+  // event ONCE with inclusive start/end dates (YYYY-MM-DD). The renderer draws
+  // continuous weekly bars automatically, including across months and years.
+  // Do not expand a range into repeated daily entries or special-case event names.
+  // display: "start" is reserved for registration-opening/deadline notices that
+  // intentionally appear only on their first day, not actual multi-day activities.
   const EVENTS = [
     { start: "2026-08-10", end: "2026-08-21", title: "Staff Development • No School", short: "Staff Development", note: "School closed", closed: true },
     { start: "2026-08-24", title: "First Day of School", short: "First Day of School", note: "2026-27 school year begins" },
