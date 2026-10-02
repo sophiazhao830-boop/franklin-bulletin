@@ -853,9 +853,12 @@
       event.end >= monthStart && event.end >= todayKey &&
       (event.display !== "start" || event.start >= monthStart && event.start >= todayKey))
       .sort((a, b) => a.start.localeCompare(b.start));
-    const pageCount = Math.max(1, Math.ceil(monthlyEvents.length / 6));
+    const eventsPerPage = 5;
+    const pageCount = Math.max(1, Math.ceil(monthlyEvents.length / eventsPerPage));
     upcomingPage %= pageCount;
-    const upcoming = monthlyEvents.slice(upcomingPage * 6, (upcomingPage + 1) * 6);
+    // Show five events per page in date order: seven events become five + two.
+    const pageStart = upcomingPage * eventsPerPage;
+    const upcoming = monthlyEvents.slice(pageStart, pageStart + eventsPerPage);
     document.getElementById("events-month").textContent = MONTHS[month - 1] + " " + year +
       (pageCount > 1 ? " · " + (upcomingPage + 1) + "/" + pageCount : "");
 
