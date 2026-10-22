@@ -250,7 +250,13 @@
       color: #9aa5b3;
     }
 
-    .calendar-day.today {
+    /* Only the outline sits above range bars; the date cell stays beneath them. */
+    .calendar-day.today::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
       box-shadow: inset 0 0 0 3px var(--red);
     }
 
@@ -608,7 +614,7 @@
     timeZone: "America/Los_Angeles"
   };
 
-  // Franklin Academy 2026-27 School Year Calendar, revised September 24, 2026.
+  // Franklin Academy 2026-27 School Year Calendar v16, revised October 15, 2026.
   // Events without confirmed dates are listed separately in TBD_EVENTS so the
   // dashboard does not imply a date that the school has not announced.
   // Permanent display rule for current and future calendars: enter each multi-day
@@ -627,15 +633,17 @@
     { start: "2026-09-25", title: "Moon Festival Classroom Activity", short: "Moon Festival", note: "In-class cultural activities" },
     { start: "2026-10-12", title: "Staff Development Day • No School", short: "Staff Development", note: "School closed for students", closed: true },
     { start: "2026-10-13", title: "Picture Day", short: "Picture Day", note: "" },
+    { start: "2026-10-13", title: "City Council Public Comments", short: "City Council Comments", note: "" },
     { start: "2026-10-15", title: "Great ShakeOut Earthquake & Fire Drill", short: "Great ShakeOut Drill", note: "Earthquake and fire drill" },
+    { start: "2026-10-15", title: "AP Chinese Class Field Trip", short: "AP Chinese Field Trip", note: "Irvine City Hall, 9:30 AM–12:00 PM" },
     { start: "2026-10-16", title: "Hispanic Heritage Festival", short: "Hispanic Heritage Festival", note: "In-class cultural activity" },
     { start: "2026-10-20", title: "K–12 Assembly", short: "K–12 Assembly", note: "Monthly school community event" },
     { start: "2026-10-21", end: "2026-10-29", title: "Semester 1 Midterm", short: "Semester 1 Midterm", note: "Midterm window" },
     { start: "2026-10-30", title: "Costume Day & Trunk or Treat", short: "Costume Day & Trunk or Treat", note: "School celebration" },
-    { start: "2026-11-02", title: "Día de los Muertos", short: "Día de los Muertos", note: "In-class cultural activities" },
     { start: "2026-11-03", title: "Monthly Fire Drill", short: "Fire Drill", note: "Campus safety drill" },
     { start: "2026-11-05", title: "Giving Thanks Together", short: "Giving Thanks Together", note: "5:30–7:00 PM" },
-    { start: "2026-11-11", title: "Veterans Day • No School", short: "Veterans Day", note: "School closed", closed: true },
+    { start: "2026-11-06", title: "Día de los Muertos", short: "Día de los Muertos", note: "In-class cultural activities" },
+    { start: "2026-11-09", title: "Veterans Day • No School", short: "Veterans Day", note: "School closed", closed: true },
     { start: "2026-11-13", title: "Grandparent’s Day Celebration", short: "Grandparent’s Day", note: "School community celebration" },
     { start: "2026-11-17", title: "K–12 Assembly", short: "K–12 Assembly", note: "Monthly school community event" },
     { start: "2026-11-19", title: "Quarterly Earthquake Drill", short: "Earthquake Drill", note: "Campus safety drill" },
@@ -675,6 +683,7 @@
     { start: "2027-04-12", title: "Staff Development Day • No School", short: "Staff Development", note: "School closed for students", closed: true },
     { start: "2027-04-13", title: "School Resumes", short: "School Resumes", note: "Students return to campus" },
     { start: "2027-04-20", title: "K–12 Assembly", short: "K–12 Assembly", note: "Monthly school community event" },
+    { start: "2027-04-21", title: "Cap & Gown Photos", short: "Cap & Gown Photos", note: "" },
     { start: "2027-04-22", title: "Spring Forward Together", short: "Spring Forward Together", note: "5:30–7:00 PM" },
     { start: "2027-04-27", title: "Quarterly Earthquake Drill", short: "Earthquake Drill", note: "Campus safety drill" },
     { start: "2027-04-30", title: "Día de los Niños", short: "Día de los Niños", note: "In-class cultural activities" },
@@ -706,7 +715,8 @@
     { year: 2027, month: 5, title: "Standardized Testing — Core Subjects & Languages" },
     { year: 2027, month: 5, title: "Math Kangaroo Results & Awards" },
     { year: 2027, month: 5, title: "5th Grade Graduation Field Trip" },
-    { year: 2027, month: 6, title: "12th Grade Senior Night/Trip" }
+    { year: 2027, month: 6, title: "12th Grade Senior Night/Trip" },
+    { year: 2027, month: 6, title: "All-School Irvine City Hall Field Trip" }
   ];
 
   const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
