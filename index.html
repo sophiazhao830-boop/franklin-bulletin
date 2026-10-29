@@ -577,7 +577,7 @@
             <div class="video-player" id="video-player">
               <iframe
                 id="promo-video"
-                src="https://www.youtube.com/embed/ZEEUzGfnHUE?autoplay=1&amp;loop=1&amp;playlist=ZEEUzGfnHUE&amp;playsinline=1&amp;rel=0&amp;enablejsapi=1"
+                src="https://www.youtube.com/embed/ZEEUzGfnHUE?autoplay=1&amp;mute=1&amp;loop=1&amp;playlist=ZEEUzGfnHUE&amp;playsinline=1&amp;rel=0&amp;enablejsapi=1"
                 allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
                 referrerpolicy="strict-origin-when-cross-origin"
                 allowfullscreen
@@ -744,7 +744,7 @@
   }
 
 
-  const requestAutomaticSound = new URLSearchParams(location.search).get("sound") !== "off";
+  const requestAutomaticSound = false; // Temporary AbleSign muted-start diagnostic.
   let youtubePlayer = null;
   let youtubeReady = false;
   let mutedFallbackUsed = false;
