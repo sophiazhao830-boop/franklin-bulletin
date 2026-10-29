@@ -1,0 +1,20 @@
+FRANKLIN ACADEMY — DIRECT VIDEO UPDATE — OCTOBER 29, 2026
+
+1. Extract the ZIP. Upload BOTH index.html and franklin-academy-video.mp4 to the root of the existing franklin-bulletin GitHub repository, in the same folder. Replace the existing index.html. Keep the MP4 filename exactly as supplied.
+2. Commit the upload and wait for GitHub Pages to finish deploying.
+3. In AbleSign, use the normal website address:
+   https://sophiazhao830-boop.github.io/franklin-bulletin/
+   Remove ?sound=off if it was added for the earlier test.
+4. Save the playlist if you changed its URL, then reopen/reload AbleSign on the Fire TV Stick.
+
+Do not upload the ZIP itself as the website. The ZIP contains the entire working dashboard: the logo and four flyers are embedded inside index.html, so additional image uploads are not required.
+
+Video: 22,984,013 bytes (22.98 MB / 21.92 MiB), 1920 x 1080, 30 fps, H.264 High profile level 4.1, AAC stereo audio, about 2 minutes 34 seconds. Compression reduces bitrate/visual quality, not resolution or aspect ratio. The original source file is unchanged.
+
+The dashboard requests autoplay with sound and looping. If a browser blocks sound, it falls back to muted playback; native video controls and a click/key gesture can request sound again. TV volume and player permissions still apply. This release removes YouTube completely, but actual playback on your Fire Stick must be confirmed there.
+
+Unchanged: video-panel dimensions, all layout CSS, logo, four flyers and 30-second rotation, calendar events, multi-day date-range bars, next-month rollover, weather, and today's border.
+
+Checks completed: full video/audio decode without errors, non-silent audio, fast-start MP4 metadata, file below 25 MB, browser picture and unmuted playback progressing, calendar/flyer regression tests, and unchanged layout fingerprints.
+
+This package has not been uploaded to GitHub by the assistant.
