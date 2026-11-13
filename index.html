@@ -245,6 +245,10 @@
       background: white;
     }
 
+    .calendar-day.full-title {
+      min-height: min-content;
+    }
+
     .calendar-day.outside {
       background: #f7f9fb;
       color: #9aa5b3;
@@ -295,7 +299,7 @@
       color: var(--navy-dark);
     }
 
-    .calendar-event-title {
+    .calendar-day.many-events .calendar-event-title {
       display: -webkit-box;
       overflow: hidden;
       -webkit-box-orient: vertical;
@@ -337,9 +341,6 @@
       padding: .15vh .3vw;
       font-size: clamp(10px, .68vw, 13px);
       line-height: 1.1;
-    }
-    .calendar-day.many-events .calendar-event-title {
-      -webkit-line-clamp: 2;
     }
 
     .calendar-day.many-events .calendar-event-note {
@@ -665,7 +666,7 @@
     { start: "2026-11-17", title: "K–12 Assembly", short: "K–12 Assembly", note: "Monthly school community event" },
     { start: "2026-11-20", title: "Junior Reporter Video Due", short: "Junior Reporter Video Due", note: "" },
     { start: "2026-11-20", title: "Student Council Candidates Notify Mr. J", short: "Notify Mr. J to Run", note: "" },
-    { start: "2026-11-21", title: "Chinese Language & Culture Contest (CLCC)", short: "Chinese Language & Culture Contest", note: "" },
+    { start: "2026-11-21", title: "Chinese Language & Culture Contest (CLCC)", note: "" },
     { start: "2026-11-24", title: "Thanksgiving Classroom Activity", short: "Thanksgiving Activity", note: "In-class activities" },
     { start: "2026-11-25", end: "2026-11-27", title: "Thanksgiving Holiday • No School", short: "Thanksgiving Holiday", note: "School closed", closed: true },
     { start: "2026-12-01", title: "Monthly Fire & Earthquake Drill", short: "Fire & Earthquake Drill", note: "Campus safety drill" },
@@ -1028,11 +1029,12 @@
       if (cellEvents.length + dayRanges.length > 1) cell.classList.add("many-events");
 
       cellEvents.forEach(event => {
+        if (!event.short) cell.classList.add("full-title");
         const badge = document.createElement("div");
         badge.className = "calendar-event" + (event.closed ? " closed" : "");
         const badgeTitle = document.createElement("div");
         badgeTitle.className = "calendar-event-title";
-        badgeTitle.textContent = event.short;
+        badgeTitle.textContent = event.short || event.title;
         const badgeNote = document.createElement("div");
         badgeNote.className = "calendar-event-note";
         badgeNote.textContent = event.note;
